@@ -17,6 +17,12 @@ brews:
     commit_author:
       name: trussworks-infra
       email: infra+github@truss.works
+dockers:
+  -
+    binaries:
+      - setup-new-aws-user
+    image_templates:
+      - "eeeady/ecs-service-logs:{{ .Tag }}"
 archives:
 - replacements:
     darwin: Darwin
