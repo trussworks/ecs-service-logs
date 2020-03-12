@@ -23,6 +23,7 @@ dockers:
       - ecs-service-logs
     image_templates:
       - "trussworks/ecs-service-logs:{{ .Tag }}"
+    skip_push: true
 archives:
 - replacements:
     darwin: Darwin
