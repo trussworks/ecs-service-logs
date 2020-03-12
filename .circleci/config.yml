@@ -33,7 +33,7 @@ jobs:
           command: docker run -it trussworks/ecs-service-logs:<< pipeline.git.tag >> --help
       - run:
           name: Docker push
-          command: docker run -it trussworks/ecs-service-logs:<< pipeline.git.tag >>
+          command: docker push trussworks/ecs-service-logs:<< pipeline.git.tag >>
 workflows:
   version: 2.1
   validate:
