@@ -4,9 +4,18 @@
 
 **ecs-service-logs** is used to filter JSON-formatted log lines in CloudWatch.
 
+## Installation
+
+For OSX Homebrew:
+
+```sh
+brew tap trussworks/tap
+brew install ecs-service-logs
+```
+
 ## Usage
 
-Easily filter JSON formatted application logs from an ECS Service or Task.  This tool compiles a chain of filters into a filter pattern in the format used by CloudWatch Logs.  You can filter application logs by ECS Cluster (--cluster), ECS Service (--service), and environment (--environment).  When filtering logs for a stopped task, use "--status STOPPED".  Trailing positional arguments are added to the query.  Equality (X=Y) and inverse equality (X!=Y) are supported.  Wildcards are also supported, e.g, "url!=health*".
+Easily filter JSON formatted application logs from an ECS Service or Task. This tool compiles a chain of filters into a filter pattern in the format used by CloudWatch Logs. You can filter application logs by ECS Cluster (--cluster), ECS Service (--service), and environment (--environment). When filtering logs for a stopped task, use "--status STOPPED". Trailing positional arguments are added to the query. Equality (X=Y) and inverse equality (X!=Y) are supported.  Wildcards are also supported, e.g, "url!=health*".
 
 [https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html).
 

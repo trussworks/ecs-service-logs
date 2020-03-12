@@ -1,0 +1,40 @@
+version: 2.1
+
+jobs:
+  validate:
+    docker:
+      - image: trussworks/circleci-docker-primary:735a60a78114453f050c2ba45400c4aa6c9e06f2
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - run:
+          name: Run pre-commit tests
+          command: pre-commit run --all-files
+      - save_cache:
+          key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+          paths:
+            - ~/.cache/pre-commit
+  release:
+    docker:
+      - image: goreleaser/goreleaser:v0.128
+    steps:
+      - checkout
+      - run:
+          name: Run goreleaser
+          command: goreleaser
+
+workflows:
+  version: 2.1
+  validate:
+    jobs:
+      - validate
+  release:
+    jobs:
+      - release:
+          filters:
+            branches:
+              ignore: /^.*/
+            tags:
+              only: /^v.*/
