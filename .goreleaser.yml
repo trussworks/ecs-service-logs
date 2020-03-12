@@ -20,9 +20,9 @@ brews:
 dockers:
   -
     binaries:
-      - setup-new-aws-user
+      - ecs-service-logs
     image_templates:
-      - "eeeady/ecs-service-logs:{{ .Tag }}"
+      - "trussworks/ecs-service-logs:{{ .Tag }}"
 archives:
 - replacements:
     darwin: Darwin
