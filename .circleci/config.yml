@@ -1,9 +1,12 @@
 version: 2.1
 
+references:
+  circleci-docker-primary: &circleci-docker-primary trussworks/circleci-docker-primary:99bee5627ff234eb0f31f5899628bff03df78b6d
+
 jobs:
   validate:
     docker:
-      - image: trussworks/circleci-docker-primary:735a60a78114453f050c2ba45400c4aa6c9e06f2
+      - image: *circleci-docker-primary
     steps:
       - checkout
       - restore_cache:
@@ -18,7 +21,7 @@ jobs:
             - ~/.cache/pre-commit
   release:
     docker:
-      - image: goreleaser/goreleaser:v0.128
+      - image: *circleci-docker-primary
     steps:
       - checkout
 
