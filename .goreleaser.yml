@@ -19,8 +19,9 @@ brews:
       email: infra+github@truss.works
 dockers:
   -
-    binaries:
-      - ecs-service-logs
+    goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
     image_templates:
       - "trussworks/ecs-service-logs:{{ .Tag }}"
     skip_push: true
