@@ -24,7 +24,7 @@ jobs:
       - image: *circleci-docker-primary
     steps:
       - checkout
-
+      - setup_remote_docker
       - run:
           name: Run goreleaser
           command: goreleaser
