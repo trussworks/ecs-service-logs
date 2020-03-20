@@ -27,7 +27,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Run goreleaser
-          command: goreleaser
+          command: goreleaser --debug
       - run:
           name: Login to Docker Hub
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
