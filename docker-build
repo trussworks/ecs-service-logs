@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+usage() {
+    echo "$0 <tag>"
+    exit 1
+}
+[[ -z $1 ]] && usage
+
+tag=$1
+builddir="$(git rev-parse --show-toplevel)"
+
+docker build --tag "trussworks/ecs-service-logs:$tag" --no-cache "$builddir"
