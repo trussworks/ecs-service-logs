@@ -1,8 +1,12 @@
+env:
+  - GO111MODULE=on
 before:
   hooks:
     - go mod download
 builds:
-- goos:
+- env:
+    - CGO_ENABLED=0
+  goos:
     - darwin
     - linux
   goarch:
