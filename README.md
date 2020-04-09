@@ -24,9 +24,7 @@ Usage:
   ecs-service-logs show [flags] [msg=XYZ] [referer=XYZ]...
 
 Flags:
-      --aws-profile string               The aws-vault profile
       --aws-region string                The AWS Region (default "us-west-2")
-      --aws-vault-keychain-name string   The aws-vault keychain name
   -c, --cluster string                   The cluster name
   -f, --ecs-task-def-family string       The ECS task definition family.
   -r, --ecs-task-def-revision string     The ECS task definition revision.
