@@ -16,11 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/99designs/aws-vault/prompt"
-	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
@@ -46,9 +42,6 @@ const (
 	flagAWSRegion       string = "aws-region"
 	flagAWSProfile      string = "aws-profile"
 	flagAWSSessionToken string = "aws-session-token"
-
-	flagAWSVaultKeychainName string = "aws-vault-keychain-name"
-	flagAWSVaultProfile      string = "aws-vault"
 
 	flagCluster                string = "cluster"
 	flagService                string = "service"
@@ -171,8 +164,6 @@ func (e *errInvalidTimeRange) Error() string {
 
 func initFlags(flag *pflag.FlagSet) {
 	flag.String(flagAWSRegion, defaultAWSRegion, "The AWS Region")
-	flag.String(flagAWSProfile, "", "The aws-vault profile")
-	flag.String(flagAWSVaultKeychainName, "", "The aws-vault keychain name")
 	flag.StringP(flagCluster, "c", "", "The cluster name")
 	flag.StringP(flagEnvironment, "e", "", "The environment name")
 	flag.StringP(flagService, "s", "", "The service name")
@@ -192,25 +183,18 @@ func initFlags(flag *pflag.FlagSet) {
 
 func checkConfig(v *viper.Viper) error {
 
-	if awsVaultProfile := v.GetString(flagAWSVaultProfile); len(awsVaultProfile) > 0 {
-		sessionToken := v.GetString(flagAWSSessionToken)
-		if len(sessionToken) == 0 {
-			return fmt.Errorf("in aws-vault session, but missing aws-session-token")
-		}
-	} else {
-		regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
-		if !ok {
-			return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
-		}
+	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
+	if !ok {
+		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
+	}
 
-		region := v.GetString(flagAWSRegion)
-		if len(region) == 0 {
-			return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
-		}
+	region := v.GetString(flagAWSRegion)
+	if len(region) == 0 {
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
+	}
 
-		if _, ok := regions[region]; !ok {
-			return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
-		}
+	if _, ok := regions[region]; !ok {
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
 	}
 
 	logLevel := strings.ToLower(v.GetString(flagLogLevel))
@@ -288,44 +272,6 @@ type Job struct {
 	LogGroupName  string
 	LogStreamName string
 	Limit         int
-}
-
-// getAWSCredentials uses aws-vault to return AWS credentials
-func getAWSCredentials(keychainName string, keychainProfile string) (*credentials.Credentials, error) {
-
-	// Open the keyring which holds the credentials
-	ring, _ := keyring.Open(keyring.Config{
-		ServiceName:              "aws-vault",
-		AllowedBackends:          []keyring.BackendType{keyring.KeychainBackend},
-		KeychainName:             keychainName,
-		KeychainTrustApplication: true,
-	})
-
-	// Prepare options for the vault before creating the provider
-	vConfig, err := vault.LoadConfigFromEnv()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to load AWS config from environment")
-	}
-	vOptions := vault.VaultOptions{
-		Config:    vConfig,
-		MfaPrompt: prompt.Method("terminal"),
-	}
-	vOptions = vOptions.ApplyDefaults()
-	err = vOptions.Validate()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to validate aws-vault options")
-	}
-
-	// Get a new provider to retrieve the credentials
-	provider, err := vault.NewVaultProvider(ring, keychainProfile, vOptions)
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to create aws-vault provider")
-	}
-	credVals, err := provider.Retrieve()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to retrieve aws credentials from aws-vault")
-	}
-	return credentials.NewStaticCredentialsFromCreds(credVals), nil
 }
 
 func main() {
@@ -417,19 +363,6 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	verbose := v.GetBool(flagVerbose)
-
-	if awsVaultProfile := v.GetString(flagAWSVaultProfile); len(awsVaultProfile) == 0 {
-		keychainName := v.GetString(flagAWSVaultKeychainName)
-		keychainProfile := v.GetString(flagAWSProfile)
-		if len(keychainName) > 0 && len(keychainProfile) > 0 {
-			creds, credsErr := getAWSCredentials(keychainName, keychainProfile)
-			if credsErr != nil {
-				return errors.Wrap(credsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
-			}
-			awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
-			awsConfig.Credentials = creds
-		}
-	}
 
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
