@@ -641,7 +641,19 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				if strings.HasPrefix(logStreamName, logStreamPrefix) {
 					// If the time ranges do not overlap then don't add the task
 					if startTimeUnix != nil && endTimeUnix != nil {
-						if !(math.Max(float64(*logStream.FirstEventTimestamp), float64(*startTimeUnix)) < math.Min(float64(*logStream.LastEventTimestamp), float64(*endTimeUnix))) {
+						// Use logstream timestamps or default to unix time
+						var firstEventTimestamp, lastEventTimestamp *int64
+						if logStream.FirstEventTimestamp != nil {
+							firstEventTimestamp = logStream.FirstEventTimestamp
+						} else {
+							firstEventTimestamp = startTimeUnix
+						}
+						if logStream.LastEventTimestamp != nil {
+							lastEventTimestamp = logStream.LastEventTimestamp
+						} else {
+							lastEventTimestamp = endTimeUnix
+						}
+						if !(math.Max(float64(*firstEventTimestamp), float64(*startTimeUnix)) < math.Min(float64(*lastEventTimestamp), float64(*endTimeUnix))) {
 							continue
 						}
 					}
