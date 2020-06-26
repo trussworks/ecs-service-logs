@@ -42,9 +42,7 @@ var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)
 var version string
 
 const (
-	flagAWSRegion       string = "aws-region"
-	flagAWSProfile      string = "aws-profile"
-	flagAWSSessionToken string = "aws-session-token"
+	flagAWSRegion string = "aws-region"
 
 	flagCluster                string = "cluster"
 	flagService                string = "service"
