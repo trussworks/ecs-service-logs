@@ -38,10 +38,11 @@ var regexpTaskArnOld = regexp.MustCompile("^arn:aws:ecs:([^:]+?):([^:]+?):task/(
 var regexpServiceEventStoppedTask = regexp.MustCompile(`^[(]service ([0-9a-zA-Z_-]+)[)] has stopped (\d+) running tasks:\s+(.+)[.]`)
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
+// version is the published version of the utility
+var version string
+
 const (
-	flagAWSRegion       string = "aws-region"
-	flagAWSProfile      string = "aws-profile"
-	flagAWSSessionToken string = "aws-session-token"
+	flagAWSRegion string = "aws-region"
 
 	flagCluster                string = "cluster"
 	flagService                string = "service"
@@ -310,9 +311,27 @@ func main() {
 	initFlags(showCommand.Flags())
 	root.AddCommand(showCommand)
 
+	versionCommand := &cobra.Command{
+		Use:                   "version",
+		DisableFlagsInUseLine: true,
+		Short:                 "Print the version",
+		Long:                  "Print the version",
+		RunE:                  versionFunction,
+	}
+	root.AddCommand(versionCommand)
+
 	if err := root.Execute(); err != nil {
 		panic(err)
 	}
+}
+
+func versionFunction(cmd *cobra.Command, args []string) error {
+	if len(version) == 0 {
+		fmt.Println("development")
+		return nil
+	}
+	fmt.Println(version)
+	return nil
 }
 
 func showFunction(cmd *cobra.Command, args []string) error {
