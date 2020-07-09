@@ -1,7 +1,7 @@
 version: 2.1
 
 references:
-  circleci-docker-primary: &circleci-docker-primary trussworks/circleci-docker-primary:99bee5627ff234eb0f31f5899628bff03df78b6d
+  circleci-docker-primary: &circleci-docker-primary trussworks/circleci-docker-primary:385c300cc218b910b6fd2da8041fe848001cecf4
 
 jobs:
   validate:
