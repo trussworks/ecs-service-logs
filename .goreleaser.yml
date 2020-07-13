@@ -1,8 +1,8 @@
 env:
-  - GO111MODULE=on
+  - GO111MODULE=auto
 before:
   hooks:
-    - go mod download
+    - go mod tidy
 builds:
 - env:
     - CGO_ENABLED=0
@@ -14,7 +14,7 @@ builds:
   main: main.go
 brews:
   - description: "ecs-service-logs is used to filter JSON-formatted log lines in CloudWatch."
-    github:
+    tap:
       owner: trussworks
       name: homebrew-tap
     homepage: "https://github.com/trussworks/ecs-service-logs"
