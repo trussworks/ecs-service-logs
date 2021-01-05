@@ -173,8 +173,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
-func checkConfig(v *viper.Viper) error {
-
+func checkRegion(v *viper.Viper) error {
 	region := v.GetString(flagAWSRegion)
 	if len(region) == 0 {
 		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
@@ -185,6 +184,16 @@ func checkConfig(v *viper.Viper) error {
 	// AWS Standard, AWS China, AWS GovCloud, AWS ISO, and AWS ISOB.
 	if _, ok := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), region); !ok {
 		return fmt.Errorf("%s is invalid: %w", flagAWSRegion, &errInvalidRegion{Region: region})
+	}
+
+	return nil
+}
+
+func checkConfig(v *viper.Viper) error {
+
+	err := checkRegion(v)
+	if err != nil {
+		return err
 	}
 
 	logLevel := strings.ToLower(v.GetString(flagLogLevel))

@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"testing"
 
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/spf13/viper"
@@ -45,14 +46,14 @@ func (suite *cliTestSuite) TestCheckRegion() {
 	}
 	for _, testValue := range testValues {
 		suite.viper.Set(flagAWSRegion, testValue)
-		suite.NoError(checkConfig(suite.viper))
+		suite.NoError(checkRegion(suite.viper))
 	}
 	testValuesWithErrors := []string{
 		"AnyOtherRegionName",
 	}
 	for _, testValue := range testValuesWithErrors {
 		suite.viper.Set(flagAWSRegion, testValue)
-		suite.Error(checkConfig(suite.viper))
+		suite.Error(checkRegion(suite.viper))
 	}
 }
 
@@ -62,4 +63,8 @@ func (suite *cliTestSuite) SetViper(v *viper.Viper) {
 
 func (suite *cliTestSuite) SetLogger(logger *log.Logger) {
 	suite.logger = logger
+}
+
+func TestCLISuite(t *testing.T) {
+	suite.Run(t, &cliTestSuite{})
 }
