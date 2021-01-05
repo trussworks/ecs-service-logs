@@ -30,6 +30,3 @@ issues:
   # A better practice is for each repo to choose which ones to disable
   exclude-use-default: false
   fix: true
-
-run:
-  modules-download-mode: readonly
