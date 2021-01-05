@@ -69,7 +69,6 @@ const (
 	logGitCommit              string = "git_commit"
 )
 
-var environments = []string{"prod", "staging", "experimental"}
 var ecsTaskStatuses = []string{"RUNNING", "STOPPED", "ALL"}
 var logLevels = []string{"debug", "info", "warn", "error", "panic", "fatal"}
 
@@ -112,14 +111,6 @@ type errInvalidRegion struct {
 
 func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %q", e.Region)
-}
-
-type errInvalidEnvironment struct {
-	Environment string
-}
-
-func (e *errInvalidEnvironment) Error() string {
-	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
 }
 
 type errInvalidTaskStatus struct {
@@ -184,18 +175,16 @@ func initFlags(flag *pflag.FlagSet) {
 
 func checkConfig(v *viper.Viper) error {
 
-	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
-	if !ok {
-		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
-	}
-
 	region := v.GetString(flagAWSRegion)
 	if len(region) == 0 {
 		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
 	}
-
-	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
+	// PartitionForRegion checks for the first region in a partition
+	// and for regions matching a regex pattern.
+	// So this checks if a region exists in any of the SDK regions, which are
+	// AWS Standard, AWS China, AWS GovCloud, AWS ISO, and AWS ISOB.
+	if _, ok := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), region); !ok {
+		return fmt.Errorf("%s is invalid: %w", flagAWSRegion, &errInvalidRegion{Region: region})
 	}
 
 	logLevel := strings.ToLower(v.GetString(flagLogLevel))
@@ -241,16 +230,6 @@ func checkConfig(v *viper.Viper) error {
 		environment := v.GetString(flagEnvironment)
 		if len(environment) == 0 {
 			return errors.New("when status is set to STOPPED then environment must be set")
-		}
-		valid := false
-		for _, str := range environments {
-			if environment == str {
-				valid = true
-				break
-			}
-		}
-		if !valid {
-			return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", flagEnvironment))
 		}
 
 		if serviceName := v.GetString(flagService); len(serviceName) == 0 {

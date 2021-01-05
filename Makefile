@@ -15,6 +15,10 @@ help:  ## Print the help documentation
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS) -X main.version=${VERSION}" -o bin/ecs-service-logs .
 
+.PHONY: test
+test:
+	go test -v ./...
+
 .PHONY: clean
 clean: ## Clean all generated files
 	rm -rf ./bin
