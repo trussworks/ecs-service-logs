@@ -23,7 +23,7 @@ brews:
       email: infra+github@truss.works
 dockers:
   -
-    binaries:
+   ids:
       - ecs-service-logs
     image_templates:
       - "trussworks/ecs-service-logs:{{ .Tag }}"
