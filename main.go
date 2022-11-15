@@ -1,14 +1,11 @@
-//
 // ecs-service-logs is a simple program to print ECS Service logs to stdout.
 // ecs-service-logs is built using cobra and supports subcommands.
 // Use ecs-service-logs with no arguments to bring up help.
-//
-//
 package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 	"os"
@@ -34,7 +31,7 @@ var regexpTaskArnOld = regexp.MustCompile("^arn:aws:ecs:([^:]+?):([^:]+?):task/(
 
 // We need to use regex to extract tasks ids from service events,
 // because stopped tasks are only returned by ecs.ListTasks for up to an hour after stopped.
-//	- https://docs.aws.amazon.com/sdk-for-go/api/service/ecs/#ECS.ListTasks
+//   - https://docs.aws.amazon.com/sdk-for-go/api/service/ecs/#ECS.ListTasks
 var regexpServiceEventStoppedTask = regexp.MustCompile(`^[(]service ([0-9a-zA-Z_-]+)[)] has stopped (\d+) running tasks:\s+(.+)[.]`)
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
@@ -351,7 +348,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 
 	if !v.GetBool(flagVerbose) {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
-		log.SetOutput(ioutil.Discard)
+		log.SetOutput(io.Discard)
 		log.SetFlags(0)
 
 		// Remove the flags for the logger

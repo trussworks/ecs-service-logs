@@ -1,4 +1,4 @@
-## [Tracker Story](<URL>)
+## [Tracker Story](URL)
 
 Changes proposed in this pull request:
 
@@ -9,4 +9,3 @@ How to test:
 
 - Step 1
 - Step 2
-
